@@ -1,0 +1,39 @@
+services:
+  node-installer:
+    image: node:24-alpine
+    working_dir: /home/node/project
+    volumes:
+      - .:/home/node/project
+    command: npm i
+
+  app:
+    image: node:24-alpine
+    working_dir: /home/node/project
+    volumes:
+      - .:/home/node/project
+    command: npm run dev
+    environment:
+      POSTGRES_URL: postgres://user:password@postgres:5432/marketplace
+    depends_on:
+      postgres:
+        condition: service_healthy
+      node-installer:
+        condition: service_completed_successfully
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: marketplace
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/postgres:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d marketplace"]
+      interval: 2s
+      timeout: 3s
+      retries: 15
+
+volumes:
+  postgres_data:

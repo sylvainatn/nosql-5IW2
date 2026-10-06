@@ -1,0 +1,47 @@
+services:
+  node-installer:
+    image: node:24-alpine
+    working_dir: /home/node/project
+    volumes:
+      - .:/home/node/project
+    command: npm i
+
+  app:
+    image: node:24-alpine
+    working_dir: /home/node/project
+    volumes:
+      - .:/home/node/project
+    command: npm run dev
+    depends_on:
+      mongo:
+        condition: service_started
+      node-installer:
+        condition: service_completed_successfully
+    environment:
+      MONGO_URL: mongodb://root:password@mongo:27017/marketplace?authSource=admin
+      
+
+  mongo-express:
+    image: mongo-express:1.0.2
+    ports:
+      - "8081:8081"
+    environment:
+      ME_CONFIG_MONGODB_URL: mongodb://root:password@mongo:27017/?authSource=admin
+      ME_CONFIG_BASICAUTH: "false"
+    depends_on:
+      mongo:
+        condition: service_started
+
+  mongo:
+    image: mongo:8.0-noble
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: password
+      MONGO_INITDB_DATABASE: marketplace
+    volumes:
+      - mongo_data:/data/db
+
+volumes:
+  mongo_data:

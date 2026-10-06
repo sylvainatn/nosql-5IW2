@@ -1,0 +1,57 @@
+services:
+  node-installer:
+    image: node:24-alpine
+    working_dir: /home/node/project
+    volumes:
+      - .:/home/node/project
+    command: npm i
+
+  app:
+    image: node:24-alpine
+    working_dir: /home/node/project
+    volumes:
+      - .:/home/node/project
+    command: npm run dev:mongo
+    depends_on:
+      mongo:
+        condition: service_started
+      postgres:
+        condition: service_started
+      valkey:
+        condition: service_started
+      node-installer:
+        condition: service_completed_successfully
+    environment:
+      MONGO_URL: mongodb://root:password@mongo:27017/marketplace?authSource=admin
+      POSTGRES_URL: postgres://user:password@postgres:5432/marketplace
+      VALKEY_HOST: valkey
+
+  postgres:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: marketplace
+    volumes:
+      - postgres_data:/var/lib/postgresql
+      - ./database/postgres:/docker-entrypoint-initdb.d:ro
+
+  mongo:
+    image: mongo:8.0-noble
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: password
+      MONGO_INITDB_DATABASE: marketplace
+    volumes:
+      - mongo_data:/data/db
+      - ./database/mongo:/docker-entrypoint-initdb.d:ro
+
+  valkey:
+    image: valkey/valkey:9.1.2-alpine
+    volumes:
+      - valkey_data:/data
+
+volumes:
+  mongo_data:
+  postgres_data:
+  valkey_data:

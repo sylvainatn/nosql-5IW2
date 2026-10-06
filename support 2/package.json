@@ -1,0 +1,19 @@
+{
+  "type": "module",
+  "scripts": {
+    "dev:postgres": "tsx src/postgres.ts",
+    "dev:postgres:index": "tsx src/postgres-index.ts",
+    "dev:valkey": "tsx src/valkey.ts",
+    "dev:mongo": "tsx src/mongo.ts"
+  },
+  "dependencies": {
+    "@valkey/valkey-glide": "2.5.1",
+    "@types/node": "^24",
+    "mongodb": "7.6.0",
+    "postgres": "3.4.9"
+  },
+  "devDependencies": {
+    "tsx": "4.23.13",
+    "typescript": "7.0.2"
+  }
+}

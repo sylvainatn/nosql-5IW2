@@ -1,0 +1,13 @@
+{
+  "type": "module",
+  "scripts": {
+    "dev": "tsx src/main.ts"
+  },
+  "dependencies": {
+    "mongodb": "7.6.0"
+  },
+  "devDependencies": {
+    "tsx": "4.23.13",
+    "typescript": "7.0.2"
+  }
+}
